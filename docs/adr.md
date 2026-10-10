@@ -3,6 +3,15 @@
 One entry per real decision, 3-4 lines each. Add new entries at the top.
 
 ```
+ADR-004: Rewrite from Laravel + Inertia to Next.js 16 + Supabase, hosted on
+Vercel (overrides "no new framework this round" in docs/v1-scope.md).
+Why: the app is small CRUD for one user; Laravel needed a server (Oracle
+Free/VPS) or a paid host, while Vercel + Supabase is free with no ops,
+backups and auth included. Same features and design, no additions.
+Security: Supabase Auth (signups off) + Row-Level Security; composite FKs
+keep categories/transactions/budgets consistent per user.
+The Laravel version is preserved at git tag laravel-v1.
+
 ADR-003: Build budgets vs. actuals before deploying v1 (overrides the
 "use v1 for 2 weeks first" gate in docs/v1-scope.md).
 Why: v1 features tested locally; deliberate choice to deploy once the
