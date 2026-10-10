@@ -21,6 +21,8 @@ class DashboardController extends Controller
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->get();
 
+        $budgets = $user->budgets()->where('month', $month)->pluck('amount', 'category_id');
+
         $totalIncome = (float) $transactions->where('type', 'income')->sum('amount');
         $totalExpense = (float) $transactions->where('type', 'expense')->sum('amount');
 
@@ -31,6 +33,9 @@ class DashboardController extends Controller
                 'category' => $group->first()->category->name,
                 'color' => $group->first()->category->color,
                 'total' => (float) $group->sum('amount'),
+                'budget' => isset($budgets[$group->first()->category_id])
+                    ? (float) $budgets[$group->first()->category_id]
+                    : null,
             ])
             ->values()
             ->sortByDesc('total')
@@ -41,6 +46,7 @@ class DashboardController extends Controller
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
             'net' => $totalIncome - $totalExpense,
+            'totalBudget' => $budgets->isEmpty() ? null : (float) $budgets->sum(),
             'byCategory' => $byCategory,
             'transactionCount' => $transactions->count(),
         ]);

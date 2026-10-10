@@ -4,6 +4,61 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* App palette: warm paper background, deep teal brand, emerald in, rose out. */
+    --color-paper: #f6f4ef;
+    --color-line: #e7e3da;
+    --color-ink: #1d1b16;
+    --color-muted: #6f6a5f;
+    --color-brand: #0f5e57;
+    --color-brand-strong: #0a4742;
+    --color-brand-soft: #e3efec;
+    --color-income: #15803d;
+    --color-income-soft: #e6f4ea;
+    --color-expense: #be123c;
+    --color-expense-soft: #fbe9ee;
+}
+
+@layer base {
+    body {
+        @apply bg-paper text-ink antialiased;
+    }
+
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-2xl border border-line bg-white;
+    }
+
+    .field {
+        @apply w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-brand focus:ring-3 focus:ring-brand/15;
+    }
+
+    .label {
+        @apply mb-1.5 block text-xs font-medium text-muted;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-strong disabled:opacity-50;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-paper;
+    }
+
+    .eyebrow {
+        @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
+    }
+
+    .num {
+        @apply tabular-nums tracking-tight;
+    }
 }

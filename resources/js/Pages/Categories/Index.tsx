@@ -1,3 +1,5 @@
+import { PlusIcon, TrashIcon } from '@/Components/Icons';
+import PageHeader from '@/Components/PageHeader';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -17,89 +19,114 @@ export default function CategoriesIndex({ categories }: Props) {
     const { data, setData, post, reset, processing, errors } = useForm({
         name: '',
         type: 'expense' as 'income' | 'expense',
-        color: '#6366f1',
+        color: '#0f5e57',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post('/categories', { onSuccess: () => reset('name') });
+        post('/categories', { preserveScroll: true, onSuccess: () => reset('name') });
     };
 
     const destroy = (id: number) => {
         if (confirm('Delete this category? This only works if it has no transactions.')) {
-            router.delete(`/categories/${id}`);
+            router.delete(`/categories/${id}`, { preserveScroll: true });
         }
     };
 
     const expense = categories.filter((c) => c.type === 'expense');
     const income = categories.filter((c) => c.type === 'income');
 
-    const renderList = (items: Category[]) => (
-        <ul className="divide-y divide-slate-100">
-            {items.map((c) => (
-                <li key={c.id} className="flex items-center justify-between px-4 py-2 text-sm">
-                    <span className="flex items-center gap-2">
-                        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
-                        {c.name}
-                    </span>
-                    <button onClick={() => destroy(c.id)} className="text-xs text-red-500 hover:text-red-700">
-                        Delete
-                    </button>
-                </li>
-            ))}
-        </ul>
+    const renderList = (title: string, items: Category[]) => (
+        <section className="card overflow-hidden">
+            <h2 className="flex items-center justify-between border-b border-line px-4 py-3 font-semibold">
+                {title}
+                <span className="text-xs font-medium text-muted">{items.length}</span>
+            </h2>
+            <ul className="divide-y divide-line">
+                {items.map((c) => (
+                    <li key={c.id} className="group flex items-center justify-between px-4 py-2.5 text-sm">
+                        <span className="flex items-center gap-3">
+                            <span
+                                className="grid h-7 w-7 place-items-center rounded-lg text-xs font-bold text-white"
+                                style={{ backgroundColor: c.color }}
+                            >
+                                {c.name.charAt(0)}
+                            </span>
+                            {c.name}
+                        </span>
+                        <button
+                            onClick={() => destroy(c.id)}
+                            className="rounded-lg p-1.5 text-muted transition hover:bg-expense-soft hover:text-expense sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                            aria-label={`Delete ${c.name}`}
+                        >
+                            <TrashIcon className="h-4 w-4" />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </section>
     );
 
     return (
         <AppLayout>
             <Head title="Categories" />
 
-            <h1 className="mb-6 text-xl font-semibold text-slate-900">Categories</h1>
+            <PageHeader title="Categories" subtitle="Group your transactions so the dashboard can break them down." />
 
-            <form onSubmit={submit} className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
-                <h2 className="mb-3 text-sm font-medium text-slate-700">Add category</h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-                    />
-                    <select
-                        value={data.type}
-                        onChange={(e) => setData('type', e.target.value as 'income' | 'expense')}
-                        className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-                    >
-                        <option value="expense">Expense</option>
-                        <option value="income">Income</option>
-                    </select>
-                    <input
-                        type="color"
-                        value={data.color}
-                        onChange={(e) => setData('color', e.target.value)}
-                        className="h-9 w-full rounded border border-slate-300"
-                    />
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-                    >
-                        Add
-                    </button>
+            <form onSubmit={submit} className="card mb-6 p-5">
+                <div className="grid grid-cols-[1fr_auto] gap-3 sm:grid-cols-[1fr_10rem_auto_auto]">
+                    <div className="col-span-2 sm:col-span-1">
+                        <label className="label" htmlFor="name">
+                            New category
+                        </label>
+                        <input
+                            id="name"
+                            type="text"
+                            placeholder="e.g. Coffee"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            className="field"
+                        />
+                    </div>
+                    <div>
+                        <label className="label" htmlFor="type">
+                            Type
+                        </label>
+                        <select
+                            id="type"
+                            value={data.type}
+                            onChange={(e) => setData('type', e.target.value as 'income' | 'expense')}
+                            className="field"
+                        >
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="label" htmlFor="color">
+                            Color
+                        </label>
+                        <input
+                            id="color"
+                            type="color"
+                            value={data.color}
+                            onChange={(e) => setData('color', e.target.value)}
+                            className="h-[42px] w-14 cursor-pointer rounded-xl border border-line bg-white p-1"
+                        />
+                    </div>
+                    <div className="col-span-2 flex items-end sm:col-span-1">
+                        <button type="submit" disabled={processing} className="btn-primary w-full">
+                            <PlusIcon className="h-4 w-4" />
+                            Add
+                        </button>
+                    </div>
                 </div>
-                {errors.name && <p className="mt-2 text-xs text-red-600">{errors.name}</p>}
+                {errors.name && <p className="mt-2 text-xs font-medium text-expense">{errors.name}</p>}
             </form>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-lg border border-slate-200 bg-white">
-                    <h2 className="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-700">Expense</h2>
-                    {renderList(expense)}
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-white">
-                    <h2 className="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-700">Income</h2>
-                    {renderList(income)}
-                </div>
+            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+                {renderList('Expense', expense)}
+                {renderList('Income', income)}
             </div>
         </AppLayout>
     );
