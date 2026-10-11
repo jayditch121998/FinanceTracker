@@ -3,6 +3,7 @@
 import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
+import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import { todayInAppTimeZone } from '@/lib/dates';
 import { formatCurrency, formatDayHeading } from '@/lib/format';
@@ -31,6 +32,8 @@ function emptyForm(): FormState {
 export default function TransactionsView({ month, transactions, categories }: Props) {
     const toast = useToast();
     const [pending, startTransition] = useTransition();
+    const [deleting, startDelete] = useTransition();
+    const [deletingId, setDeletingId] = useState<number | null>(null);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
     const [error, setError] = useState<string | null>(null);
@@ -82,7 +85,8 @@ export default function TransactionsView({ month, transactions, categories }: Pr
 
     const destroy = (id: number) => {
         if (!confirm('Delete this transaction?')) return;
-        startTransition(async () => {
+        setDeletingId(id);
+        startDelete(async () => {
             toast(await deleteTransaction(id));
             if (editingId === id) cancelEdit();
         });
@@ -194,8 +198,8 @@ export default function TransactionsView({ month, transactions, categories }: Pr
 
                 <div className="mt-4 flex gap-2">
                     <button type="submit" disabled={pending} className="btn-primary flex-1 sm:flex-none">
-                        {!editingId && <PlusIcon className="h-4 w-4" />}
-                        {editingId ? 'Save changes' : 'Add transaction'}
+                        {pending ? <Spinner /> : !editingId && <PlusIcon className="h-4 w-4" />}
+                        {pending ? 'Saving…' : editingId ? 'Save changes' : 'Add transaction'}
                     </button>
                     {editingId && (
                         <button type="button" onClick={cancelEdit} className="btn-ghost">
@@ -214,58 +218,14 @@ export default function TransactionsView({ month, transactions, categories }: Pr
                             <h3 className="eyebrow mb-2 px-1">{formatDayHeading(date)}</h3>
                             <ul className="card divide-y divide-line overflow-hidden">
                                 {items.map((t) => (
-                                    <li
+                                    <TransactionRow
                                         key={t.id}
-                                        className={`group flex items-center gap-3 px-4 py-3 ${
-                                            editingId === t.id ? 'bg-brand-soft' : ''
-                                        }`}
-                                    >
-                                        <span
-                                            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-bold text-white"
-                                            style={{ backgroundColor: t.category.color }}
-                                        >
-                                            {t.category.name.charAt(0)}
-                                        </span>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-medium">{t.category.name}</p>
-                                            {(t.goal || t.note) && (
-                                                <p className="truncate text-xs text-muted">
-                                                    {t.goal && (
-                                                        <span className="font-medium text-brand">
-                                                            {t.type === 'expense' ? '→ ' : '← '}
-                                                            {t.goal.name}
-                                                        </span>
-                                                    )}
-                                                    {t.goal && t.note && ' · '}
-                                                    {t.note}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <span
-                                            className={`num shrink-0 text-sm font-semibold ${
-                                                t.type === 'income' ? 'text-income' : 'text-ink'
-                                            }`}
-                                        >
-                                            {t.type === 'income' ? '+' : '−'}
-                                            {formatCurrency(t.amount)}
-                                        </span>
-                                        <div className="flex shrink-0 gap-0.5 sm:opacity-0 sm:transition sm:group-hover:opacity-100 sm:focus-within:opacity-100">
-                                            <button
-                                                onClick={() => startEdit(t)}
-                                                className="rounded-lg p-1.5 text-muted hover:bg-paper hover:text-ink"
-                                                aria-label="Edit"
-                                            >
-                                                <PencilIcon className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => destroy(t.id)}
-                                                className="rounded-lg p-1.5 text-muted hover:bg-expense-soft hover:text-expense"
-                                                aria-label="Delete"
-                                            >
-                                                <TrashIcon className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </li>
+                                        transaction={t}
+                                        editing={editingId === t.id}
+                                        deleting={deleting && deletingId === t.id}
+                                        onEdit={() => startEdit(t)}
+                                        onDelete={() => destroy(t.id)}
+                                    />
                                 ))}
                             </ul>
                         </section>
@@ -273,5 +233,69 @@ export default function TransactionsView({ month, transactions, categories }: Pr
                 </div>
             )}
         </>
+    );
+}
+
+interface TransactionRowProps {
+    transaction: Transaction;
+    editing: boolean;
+    deleting: boolean;
+    onEdit: () => void;
+    onDelete: () => void;
+}
+
+function TransactionRow({ transaction: t, editing, deleting, onEdit, onDelete }: TransactionRowProps) {
+    return (
+        <li
+            aria-busy={deleting}
+            className={`group flex items-center gap-3 px-4 py-3 transition-opacity ${editing ? 'bg-brand-soft' : ''} ${
+                deleting ? 'opacity-40' : ''
+            }`}
+        >
+            <span
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-bold text-white"
+                style={{ backgroundColor: t.category.color }}
+            >
+                {t.category.name.charAt(0)}
+            </span>
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{t.category.name}</p>
+                {(t.goal || t.note) && (
+                    <p className="truncate text-xs text-muted">
+                        {t.goal && (
+                            <span className="font-medium text-brand">
+                                {t.type === 'expense' ? '→ ' : '← '}
+                                {t.goal.name}
+                            </span>
+                        )}
+                        {t.goal && t.note && ' · '}
+                        {t.note}
+                    </p>
+                )}
+            </div>
+            <span className={`num shrink-0 text-sm font-semibold ${t.type === 'income' ? 'text-income' : 'text-ink'}`}>
+                {t.type === 'income' ? '+' : '−'}
+                {formatCurrency(t.amount)}
+            </span>
+            {deleting ? (
+                // Same width as the two icon buttons, so the row doesn't shift.
+                <span className="grid w-[68px] shrink-0 place-items-center text-muted">
+                    <Spinner />
+                </span>
+            ) : (
+                <div className="flex shrink-0 gap-0.5 sm:opacity-0 sm:transition sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+                    <button onClick={onEdit} className="rounded-lg p-1.5 text-muted hover:bg-paper hover:text-ink" aria-label="Edit">
+                        <PencilIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={onDelete}
+                        className="rounded-lg p-1.5 text-muted hover:bg-expense-soft hover:text-expense"
+                        aria-label="Delete"
+                    >
+                        <TrashIcon className="h-4 w-4" />
+                    </button>
+                </div>
+            )}
+        </li>
     );
 }

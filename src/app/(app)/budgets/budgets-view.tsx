@@ -2,10 +2,11 @@
 
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
+import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import { formatCurrency } from '@/lib/format';
 import type { BudgetRow } from '@/lib/summary';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { copyPreviousBudgets, saveBudget } from './actions';
 
 interface Props {
@@ -16,7 +17,9 @@ interface Props {
 
 export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
     const toast = useToast();
-    const [pending, startTransition] = useTransition();
+    const [copying, startCopy] = useTransition();
+    const [saving, startSave] = useTransition();
+    const [savingId, setSavingId] = useState<number | null>(null);
 
     const budgeted = rows.filter((r) => r.budget !== null);
     const totalBudget = budgeted.reduce((sum, r) => sum + (r.budget ?? 0), 0);
@@ -28,12 +31,13 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
     const save = (row: BudgetRow, value: string) => {
         const amount = value.trim() === '' ? null : Number(value);
         if (amount === row.budget || (amount !== null && Number.isNaN(amount))) return;
-        startTransition(async () => {
+        setSavingId(row.category_id);
+        startSave(async () => {
             toast(await saveBudget({ month, category_id: row.category_id, amount }));
         });
     };
 
-    const copyPrevious = () => startTransition(async () => toast(await copyPreviousBudgets(month)));
+    const copyPrevious = () => startCopy(async () => toast(await copyPreviousBudgets(month)));
 
     return (
         <>
@@ -67,8 +71,9 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
             {canCopyPrevious && (
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/20 bg-brand-soft px-4 py-3 text-sm">
                     <span className="font-medium text-brand">No budgets set for this month yet.</span>
-                    <button onClick={copyPrevious} disabled={pending} className="btn-primary py-1.5">
-                        Copy from last month
+                    <button onClick={copyPrevious} disabled={copying} className="btn-primary py-1.5">
+                        {copying && <Spinner />}
+                        {copying ? 'Copying…' : 'Copy from last month'}
                     </button>
                 </div>
             )}
@@ -83,6 +88,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                         const left = row.budget === null ? null : row.budget - row.spent;
                         const over = left !== null && left < 0;
                         const percent = row.budget ? Math.min(100, (row.spent / row.budget) * 100) : 0;
+                        const isSaving = saving && savingId === row.category_id;
 
                         return (
                             <li key={row.category_id} className="px-4 py-3.5">
@@ -105,7 +111,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                                     </div>
                                     <div className="relative w-32 shrink-0">
                                         <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-muted">
-                                            ₱
+                                            {isSaving ? <Spinner className="h-3.5 w-3.5 text-brand" /> : '₱'}
                                         </span>
                                         <input
                                             // Re-mount when the saved value or month changes so the field resets.
@@ -119,6 +125,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                                             onBlur={(e) => save(row, e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
                                             aria-label={`Budget for ${row.name}`}
+                                            aria-busy={isSaving}
                                             className="field num py-1.5 pl-7 text-right"
                                         />
                                     </div>

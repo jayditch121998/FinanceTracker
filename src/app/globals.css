@@ -16,6 +16,17 @@
     --color-income-soft: #e6f4ea;
     --color-expense: #be123c;
     --color-expense-soft: #fbe9ee;
+
+    --animate-progress: progress 1.1s ease-in-out infinite;
+
+    @keyframes progress {
+        from {
+            transform: translateX(-100%);
+        }
+        to {
+            transform: translateX(250%);
+        }
+    }
 }
 
 @layer base {

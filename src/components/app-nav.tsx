@@ -1,6 +1,7 @@
 'use client';
 
 import { HomeIcon, ListIcon, PiggyIcon, TagIcon, TargetIcon } from '@/components/icons';
+import { LinkPendingBar } from '@/components/navigation-progress';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType, SVGProps } from 'react';
@@ -32,6 +33,7 @@ export function TopNav() {
                     }`}
                 >
                     {item.label}
+                    <LinkPendingBar />
                 </Link>
             ))}
         </nav>
@@ -55,6 +57,7 @@ export function BottomNav() {
                     >
                         <NavIcon className="h-5 w-5" />
                         {label}
+                        <LinkPendingBar />
                     </Link>
                 ))}
             </div>

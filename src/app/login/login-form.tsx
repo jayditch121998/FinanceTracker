@@ -1,6 +1,7 @@
 'use client';
 
 import { login, type LoginState } from '@/app/auth/actions';
+import { Spinner } from '@/components/spinner';
 import { useActionState } from 'react';
 
 const initialState: LoginState = { error: null, email: '' };
@@ -43,6 +44,7 @@ export default function LoginForm() {
             {state.error && <p className="text-xs font-medium text-expense">{state.error}</p>}
 
             <button type="submit" disabled={pending} className="btn-primary w-full">
+                {pending && <Spinner />}
                 {pending ? 'Logging in…' : 'Log in'}
             </button>
         </form>

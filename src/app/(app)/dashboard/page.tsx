@@ -1,6 +1,6 @@
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
-import PageSkeleton from '@/components/page-skeleton';
+import { DashboardSkeleton } from '@/components/skeletons';
 import { getBudgetsForMonth, getTransactionsForMonth } from '@/lib/data';
 import { resolveMonth } from '@/lib/dates';
 import { formatCurrency } from '@/lib/format';
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: 'Dashboard' };
 
 export default function DashboardPage({ searchParams }: PageProps<'/dashboard'>) {
     return (
-        <Suspense fallback={<PageSkeleton title="Dashboard" />}>
+        <Suspense fallback={<DashboardSkeleton />}>
             <Dashboard searchParams={searchParams} />
         </Suspense>
     );

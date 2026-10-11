@@ -3,15 +3,14 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 import { shiftMonth } from '@/lib/dates';
 import { formatMonth } from '@/lib/format';
-import { usePathname, useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useNavigation } from '@/components/navigation-progress';
+import { usePathname } from 'next/navigation';
 
 export default function MonthSwitcher({ month }: { month: string }) {
-    const router = useRouter();
     const pathname = usePathname();
-    const [pending, startTransition] = useTransition();
+    const { pending, navigate } = useNavigation();
 
-    const go = (value: string) => startTransition(() => router.push(`${pathname}?month=${value}`, { scroll: false }));
+    const go = (value: string) => navigate(`${pathname}?month=${value}`);
 
     return (
         <div

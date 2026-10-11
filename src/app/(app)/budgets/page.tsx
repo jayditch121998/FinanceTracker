@@ -1,4 +1,4 @@
-import PageSkeleton from '@/components/page-skeleton';
+import { BudgetsSkeleton } from '@/components/skeletons';
 import { getBudgetsForMonth, getCategories, getTransactionsForMonth, hasBudgetsForMonth } from '@/lib/data';
 import { resolveMonth, shiftMonth } from '@/lib/dates';
 import { buildBudgetRows } from '@/lib/summary';
@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Budgets' };
 
 export default function BudgetsPage({ searchParams }: PageProps<'/budgets'>) {
     return (
-        <Suspense fallback={<PageSkeleton title="Budgets" />}>
+        <Suspense fallback={<BudgetsSkeleton />}>
             <Budgets searchParams={searchParams} />
         </Suspense>
     );

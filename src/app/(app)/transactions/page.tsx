@@ -1,4 +1,4 @@
-import PageSkeleton from '@/components/page-skeleton';
+import { TransactionsSkeleton } from '@/components/skeletons';
 import { getCategories, getTransactionsForMonth } from '@/lib/data';
 import { resolveMonth } from '@/lib/dates';
 import type { Metadata } from 'next';
@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: 'Transactions' };
 
 export default function TransactionsPage({ searchParams }: PageProps<'/transactions'>) {
     return (
-        <Suspense fallback={<PageSkeleton title="Transactions" />}>
+        <Suspense fallback={<TransactionsSkeleton />}>
             <Transactions searchParams={searchParams} />
         </Suspense>
     );

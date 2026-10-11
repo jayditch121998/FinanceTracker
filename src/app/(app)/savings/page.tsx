@@ -1,4 +1,4 @@
-import PageSkeleton from '@/components/page-skeleton';
+import { SavingsSkeleton } from '@/components/skeletons';
 import { getGoalMovements, getSavingsGoals } from '@/lib/data';
 import { currentMonth } from '@/lib/dates';
 import { buildGoalProgress } from '@/lib/savings';
@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Savings' };
 
 export default function SavingsPage() {
     return (
-        <Suspense fallback={<PageSkeleton title="Savings" />}>
+        <Suspense fallback={<SavingsSkeleton />}>
             <Savings />
         </Suspense>
     );

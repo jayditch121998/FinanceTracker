@@ -2,6 +2,7 @@
 
 import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import PageHeader from '@/components/page-header';
+import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import { todayInAppTimeZone } from '@/lib/dates';
 import { formatCurrency, formatDate } from '@/lib/format';
@@ -16,6 +17,8 @@ function emptyGoal(): GoalInput {
 export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
     const toast = useToast();
     const [pending, startTransition] = useTransition();
+    const [deleting, startDelete] = useTransition();
+    const [deletingId, setDeletingId] = useState<number | null>(null);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showForm, setShowForm] = useState(goals.length === 0);
     const [form, setForm] = useState<GoalInput>(emptyGoal);
@@ -63,7 +66,8 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
                 ? `Delete "${goal.name}"? Its deposits and withdrawals stay in your transactions but no longer count toward a goal.`
                 : `Delete "${goal.name}"?`;
         if (!confirm(message)) return;
-        startTransition(async () => {
+        setDeletingId(goal.id);
+        startDelete(async () => {
             toast(await deleteGoal(goal.id));
             if (editingId === goal.id) closeForm();
         });
@@ -163,7 +167,8 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
 
                     <div className="mt-4 flex gap-2">
                         <button type="submit" disabled={pending} className="btn-primary flex-1 sm:flex-none">
-                            {editingId ? 'Save changes' : 'Create goal'}
+                            {pending && <Spinner />}
+                            {pending ? 'Saving…' : editingId ? 'Save changes' : 'Create goal'}
                         </button>
                         {(goals.length > 0 || editingId) && (
                             <button type="button" onClick={closeForm} className="btn-ghost">
@@ -185,6 +190,7 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
                             key={goal.id}
                             goal={goal}
                             editing={editingId === goal.id}
+                            deleting={deleting && deletingId === goal.id}
                             onEdit={() => startEdit(goal)}
                             onDelete={() => destroy(goal)}
                         />
@@ -198,17 +204,20 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
 interface GoalCardProps {
     goal: GoalProgress;
     editing: boolean;
+    deleting: boolean;
     onEdit: () => void;
     onDelete: () => void;
 }
 
-function GoalCard({ goal, editing, onEdit, onDelete }: GoalCardProps) {
+function GoalCard({ goal, editing, deleting, onEdit, onDelete }: GoalCardProps) {
     const toast = useToast();
     const [pending, startTransition] = useTransition();
+    const [action, setAction] = useState<'deposit' | 'withdraw' | null>(null);
     const [amount, setAmount] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const move = (direction: 'deposit' | 'withdraw') => {
+        setAction(direction);
         startTransition(async () => {
             const input = { goal_id: goal.id, amount, date: todayInAppTimeZone() };
             const result = direction === 'deposit' ? await depositToGoal(input) : await withdrawFromGoal(input);
@@ -223,7 +232,12 @@ function GoalCard({ goal, editing, onEdit, onDelete }: GoalCardProps) {
     };
 
     return (
-        <section className={`card p-5 ${editing ? 'ring-2 ring-brand/30' : ''}`}>
+        <section
+            aria-busy={deleting || pending}
+            className={`card p-5 transition-opacity ${editing ? 'ring-2 ring-brand/30' : ''} ${
+                deleting ? 'pointer-events-none opacity-40' : ''
+            }`}
+        >
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: goal.color }} />
@@ -291,7 +305,7 @@ function GoalCard({ goal, editing, onEdit, onDelete }: GoalCardProps) {
                     onClick={() => move('deposit')}
                     className="btn-primary px-3 py-2"
                 >
-                    Add
+                    {pending && action === 'deposit' ? <Spinner /> : 'Add'}
                 </button>
                 <button
                     type="button"
@@ -299,7 +313,7 @@ function GoalCard({ goal, editing, onEdit, onDelete }: GoalCardProps) {
                     onClick={() => move('withdraw')}
                     className="btn-ghost px-3 py-2"
                 >
-                    Withdraw
+                    {pending && action === 'withdraw' ? <Spinner /> : 'Withdraw'}
                 </button>
             </div>
 

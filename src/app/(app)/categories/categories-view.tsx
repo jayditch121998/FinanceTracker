@@ -2,6 +2,7 @@
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
 import PageHeader from '@/components/page-header';
+import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import type { Category, EntryType } from '@/lib/types';
 import { useState, useTransition, type FormEvent } from 'react';
@@ -10,6 +11,8 @@ import { createCategory, deleteCategory } from './actions';
 export default function CategoriesView({ categories }: { categories: Category[] }) {
     const toast = useToast();
     const [pending, startTransition] = useTransition();
+    const [deleting, startDelete] = useTransition();
+    const [deletingId, setDeletingId] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [type, setType] = useState<EntryType>('expense');
     const [color, setColor] = useState('#0f5e57');
@@ -31,7 +34,8 @@ export default function CategoriesView({ categories }: { categories: Category[] 
 
     const destroy = (id: number) => {
         if (!confirm('Delete this category? This only works if it has no transactions.')) return;
-        startTransition(async () => toast(await deleteCategory(id)));
+        setDeletingId(id);
+        startDelete(async () => toast(await deleteCategory(id)));
     };
 
     const renderList = (title: string, items: Category[]) => (
@@ -41,26 +45,41 @@ export default function CategoriesView({ categories }: { categories: Category[] 
                 <span className="text-xs font-medium text-muted">{items.length}</span>
             </h2>
             <ul className="divide-y divide-line">
-                {items.map((c) => (
-                    <li key={c.id} className="group flex items-center justify-between px-4 py-2.5 text-sm">
-                        <span className="flex items-center gap-3">
-                            <span
-                                className="grid h-7 w-7 place-items-center rounded-lg text-xs font-bold text-white"
-                                style={{ backgroundColor: c.color }}
-                            >
-                                {c.name.charAt(0)}
-                            </span>
-                            {c.name}
-                        </span>
-                        <button
-                            onClick={() => destroy(c.id)}
-                            className="rounded-lg p-1.5 text-muted transition hover:bg-expense-soft hover:text-expense sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-                            aria-label={`Delete ${c.name}`}
+                {items.map((c) => {
+                    const isDeleting = deleting && deletingId === c.id;
+                    return (
+                        <li
+                            key={c.id}
+                            aria-busy={isDeleting}
+                            className={`group flex items-center justify-between px-4 py-2.5 text-sm transition-opacity ${
+                                isDeleting ? 'opacity-40' : ''
+                            }`}
                         >
-                            <TrashIcon className="h-4 w-4" />
-                        </button>
-                    </li>
-                ))}
+                            <span className="flex items-center gap-3">
+                                <span
+                                    className="grid h-7 w-7 place-items-center rounded-lg text-xs font-bold text-white"
+                                    style={{ backgroundColor: c.color }}
+                                >
+                                    {c.name.charAt(0)}
+                                </span>
+                                {c.name}
+                            </span>
+                            {isDeleting ? (
+                                <span className="p-1.5 text-muted">
+                                    <Spinner />
+                                </span>
+                            ) : (
+                                <button
+                                    onClick={() => destroy(c.id)}
+                                    className="rounded-lg p-1.5 text-muted transition hover:bg-expense-soft hover:text-expense sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                                    aria-label={`Delete ${c.name}`}
+                                >
+                                    <TrashIcon className="h-4 w-4" />
+                                </button>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
         </section>
     );
@@ -112,8 +131,8 @@ export default function CategoriesView({ categories }: { categories: Category[] 
                     </div>
                     <div className="col-span-2 flex items-end sm:col-span-1">
                         <button type="submit" disabled={pending} className="btn-primary w-full">
-                            <PlusIcon className="h-4 w-4" />
-                            Add
+                            {pending ? <Spinner /> : <PlusIcon className="h-4 w-4" />}
+                            {pending ? 'Adding…' : 'Add'}
                         </button>
                     </div>
                 </div>

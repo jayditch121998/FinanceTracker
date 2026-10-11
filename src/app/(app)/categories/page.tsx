@@ -1,4 +1,4 @@
-import PageSkeleton from '@/components/page-skeleton';
+import { CategoriesSkeleton } from '@/components/skeletons';
 import { getCategories } from '@/lib/data';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Categories' };
 
 export default function CategoriesPage() {
     return (
-        <Suspense fallback={<PageSkeleton title="Categories" />}>
+        <Suspense fallback={<CategoriesSkeleton />}>
             <Categories />
         </Suspense>
     );
