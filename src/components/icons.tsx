@@ -44,6 +44,15 @@ export const TargetIcon = (p: IconProps) => (
     </Icon>
 );
 
+export const PiggyIcon = (p: IconProps) => (
+    <Icon {...p}>
+        <path d="M19 9.5c.8.4 1.5 1 2 1.8" />
+        <path d="M5 11a7 6 0 0 1 7-5.5c3.9 0 7 2.7 7 6 0 1.6-.7 3-1.9 4.1L17 19h-2.5l-.6-1.3a8 8 0 0 1-3.8 0L9.5 19H7l-.5-2.6A5.7 5.7 0 0 1 5 13.5H3v-3h2Z" />
+        <circle cx="15" cy="10.5" r="0.8" />
+        <path d="M10 6.2 9 3.5l3 1.2" />
+    </Icon>
+);
+
 export const TagIcon = (p: IconProps) => (
     <Icon {...p}>
         <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />

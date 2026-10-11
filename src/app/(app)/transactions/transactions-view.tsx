@@ -228,7 +228,18 @@ export default function TransactionsView({ month, transactions, categories }: Pr
                                         </span>
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-sm font-medium">{t.category.name}</p>
-                                            {t.note && <p className="truncate text-xs text-muted">{t.note}</p>}
+                                            {(t.goal || t.note) && (
+                                                <p className="truncate text-xs text-muted">
+                                                    {t.goal && (
+                                                        <span className="font-medium text-brand">
+                                                            {t.type === 'expense' ? '→ ' : '← '}
+                                                            {t.goal.name}
+                                                        </span>
+                                                    )}
+                                                    {t.goal && t.note && ' · '}
+                                                    {t.note}
+                                                </p>
+                                            )}
                                         </div>
                                         <span
                                             className={`num shrink-0 text-sm font-semibold ${

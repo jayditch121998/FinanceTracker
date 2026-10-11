@@ -3,6 +3,13 @@
 One entry per real decision, 3-4 lines each. Add new entries at the top.
 
 ```
+ADR-005: Savings goals; money added to a goal counts as an expense.
+A deposit is an expense transaction in "Savings" linked to the goal; a
+withdrawal is income in "Savings Withdrawal". Goal balance = deposits -
+withdrawals (all time). Chosen so a month's Net reflects money set aside;
+trade-off: "Savings" shows up in spending and budgets. Deleting a goal
+keeps its transactions and only unlinks them.
+
 ADR-004: Rewrite from Laravel + Inertia to Next.js 16 + Supabase, hosted on
 Vercel (overrides "no new framework this round" in docs/v1-scope.md).
 Why: the app is small CRUD for one user; Laravel needed a server (Oracle

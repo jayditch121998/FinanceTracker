@@ -4,6 +4,10 @@ Update this every Friday (15 min). Dated, one or two lines per entry —
 this is your accountability trail, not a status report for anyone else.
 
 ```
+2026-10-11 — Built savings goals (ADR-005): goals with target and optional
+date, add/withdraw money, progress and per-month amount needed. Needs
+migration 20261011000000_savings_goals.sql run in Supabase.
+
 2026-10-10 — Rewrote to Next.js 16 + Supabase for free Vercel hosting
 (ADR-004). Laravel version tagged laravel-v1. Same features: auth,
 transactions, categories, dashboard, budgets vs. actuals. Typecheck, lint,

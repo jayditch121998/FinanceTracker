@@ -1,6 +1,6 @@
 'use client';
 
-import { HomeIcon, ListIcon, TagIcon, TargetIcon } from '@/components/icons';
+import { HomeIcon, ListIcon, PiggyIcon, TagIcon, TargetIcon } from '@/components/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType, SVGProps } from 'react';
@@ -9,6 +9,7 @@ const navItems: { href: string; label: string; icon: ComponentType<SVGProps<SVGS
     { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
     { href: '/transactions', label: 'Transactions', icon: ListIcon },
     { href: '/budgets', label: 'Budgets', icon: TargetIcon },
+    { href: '/savings', label: 'Savings', icon: PiggyIcon },
     { href: '/categories', label: 'Categories', icon: TagIcon },
 ];
 
@@ -43,7 +44,7 @@ export function BottomNav() {
 
     return (
         <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
-            <div className="grid grid-cols-4">
+            <div className="grid grid-cols-5">
                 {navItems.map(({ href, label, icon: NavIcon }) => (
                     <Link
                         key={href}

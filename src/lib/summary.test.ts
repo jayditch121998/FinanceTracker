@@ -15,6 +15,8 @@ function tx(category: Category, amount: number): Transaction {
         amount,
         date: '2026-10-05',
         note: null,
+        goal_id: null,
+        goal: null,
         category,
     };
 }

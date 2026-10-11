@@ -40,9 +40,9 @@ How the pieces fit:
 
 1. Create a free project at [supabase.com](https://supabase.com). Pick the Singapore region for
    the lowest latency from the Philippines.
-2. Open **SQL Editor**, paste the contents of
-   [supabase/migrations/20261010000000_init.sql](supabase/migrations/20261010000000_init.sql)
-   and run it. This creates the tables, RLS policies and the default categories trigger.
+2. Open **SQL Editor** and run each file in [supabase/migrations/](supabase/migrations/), oldest
+   first: paste the contents, click **Run**, then do the next one. These create the tables, RLS
+   policies, the default categories trigger and savings goals.
 3. Under **Authentication → Sign In / Providers**, turn off **Allow new users to sign up**.
    This app is for you alone.
 4. Under **Authentication → Users**, choose **Add user → Create new user**, enter your email
@@ -107,12 +107,14 @@ src/
       transactions/        add/edit/delete, grouped by day     (+ actions.ts)
       budgets/             monthly limit per expense category  (+ actions.ts)
       categories/          add/delete categories                (+ actions.ts)
+      savings/             savings goals: add/withdraw money    (+ actions.ts)
     auth/actions.ts        login / logout
     login/                 login page
   components/              nav, month switcher, toasts, icons, skeletons
   lib/
     data.ts                requireUser() + all database reads (server-only)
     summary.ts             pure totals/budget logic (unit tested)
+    savings.ts             pure goal balance/progress logic (unit tested)
     dates.ts, format.ts    Manila-time dates, ₱ formatting (unit tested)
     supabase/              server + proxy Supabase clients
   proxy.ts                 session refresh + redirect to /login
@@ -130,6 +132,18 @@ yesterday's date because the server runs in UTC.
 
 Add a new file to `supabase/migrations/` (for example `20261101000000_add_x.sql`) and run it
 in the Supabase SQL Editor. Never edit a migration that has already been run.
+
+| Migration | What it adds |
+| --- | --- |
+| `20261010000000_init.sql` | categories, transactions, budgets, RLS, default categories |
+| `20261011000000_savings_goals.sql` | savings goals, `transactions.goal_id` |
+
+## Savings goals
+
+Adding money to a goal records an **expense** in a "Savings" category, linked to the goal, so it
+lowers that month's Net. Withdrawing records **income** in "Savings Withdrawal". Both categories
+are created automatically the first time you use them. A goal's balance is all its deposits minus
+withdrawals. Deleting a goal keeps those transactions and only unlinks them. See ADR-005.
 
 ---
 
