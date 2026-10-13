@@ -20,13 +20,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
-        // The script below may add data-hide-amounts before React hydrates, hence suppressHydrationWarning.
-        <html lang="en" className={jakarta.variable} suppressHydrationWarning>
+        // Amounts are hidden by default: the server renders data-hide-amounts, and the script
+        // below removes it before hydration if you chose to show them (hence suppressHydrationWarning).
+        <html lang="en" className={jakarta.variable} data-hide-amounts="" suppressHydrationWarning>
             <head>
-                {/* Apply "hide amounts" before first paint so real numbers never flash on screen. */}
+                {/* Apply "show amounts" before first paint, so the page never flips after loading. */}
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `try{if(localStorage.getItem('${HIDE_AMOUNTS_KEY}')==='1')document.documentElement.setAttribute('data-hide-amounts','')}catch(e){}`,
+                        __html: `try{if(localStorage.getItem('${HIDE_AMOUNTS_KEY}')==='0')document.documentElement.removeAttribute('data-hide-amounts')}catch(e){}`,
                     }}
                 />
             </head>

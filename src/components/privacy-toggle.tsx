@@ -5,8 +5,9 @@ import { HIDE_AMOUNTS_KEY } from '@/lib/privacy';
 import { useSyncExternalStore } from 'react';
 
 // "Hide amounts" lives on <html data-hide-amounts> so plain CSS can mask every
-// amount, and in localStorage so it survives reloads on this device. The script
-// in the root layout applies it before first paint, so digits never flash.
+// amount, and in localStorage so it survives reloads on this device. Amounts are
+// hidden by default: the server renders the attribute, and the root layout's
+// script removes it before first paint only if you chose to show them.
 const CHANGE_EVENT = 'hide-amounts-change';
 
 function subscribe(onChange: () => void) {
@@ -27,7 +28,8 @@ function setHidden(hidden: boolean) {
 }
 
 export default function PrivacyToggle() {
-    const hidden = useSyncExternalStore(subscribe, isHidden, () => false);
+    // The server can't see localStorage, so it renders the default: hidden.
+    const hidden = useSyncExternalStore(subscribe, isHidden, () => true);
     const label = hidden ? 'Show amounts' : 'Hide amounts';
 
     return (
