@@ -119,7 +119,7 @@ export default function TransactionsView({ month, transactions, categories }: Pr
                                 onClick={() => setForm((prev) => ({ ...prev, type, category_id: '' }))}
                                 className={`rounded-lg px-3 py-1 capitalize transition ${
                                     form.type === type
-                                        ? `bg-white shadow-sm ${type === 'expense' ? 'text-expense' : 'text-income'}`
+                                        ? `bg-surface shadow-sm ${type === 'expense' ? 'text-expense' : 'text-income'}`
                                         : 'text-muted'
                                 }`}
                             >

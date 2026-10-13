@@ -1,5 +1,5 @@
 import { ToastProvider } from '@/components/toast';
-import { HIDE_AMOUNTS_KEY } from '@/lib/privacy';
+import { DARK_THEME_COLOR, PREFERENCES_SCRIPT } from '@/lib/preferences';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
@@ -15,21 +15,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-    themeColor: '#f6f4ef',
+    themeColor: DARK_THEME_COLOR,
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
-        // Amounts are hidden by default: the server renders data-hide-amounts, and the script
-        // below removes it before hydration if you chose to show them (hence suppressHydrationWarning).
-        <html lang="en" className={jakarta.variable} data-hide-amounts="" suppressHydrationWarning>
+        // Defaults: dark theme, amounts hidden. The script applies any saved choice before
+        // hydration, so these attributes can differ from the server's (hence suppressHydrationWarning).
+        <html lang="en" className={jakarta.variable} data-theme="dark" data-hide-amounts="" suppressHydrationWarning>
             <head>
-                {/* Apply "show amounts" before first paint, so the page never flips after loading. */}
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `try{if(localStorage.getItem('${HIDE_AMOUNTS_KEY}')==='0')document.documentElement.removeAttribute('data-hide-amounts')}catch(e){}`,
-                    }}
-                />
+                {/* Apply saved preferences before first paint, so the page never flips after loading. */}
+                <script dangerouslySetInnerHTML={{ __html: PREFERENCES_SCRIPT }} />
             </head>
             <body>
                 <ToastProvider>{children}</ToastProvider>

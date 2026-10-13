@@ -126,7 +126,7 @@ export default function CategoriesView({ categories }: { categories: Category[] 
                             type="color"
                             value={color}
                             onChange={(e) => setColor(e.target.value)}
-                            className="h-[42px] w-14 cursor-pointer rounded-xl border border-line bg-white p-1"
+                            className="h-[42px] w-14 cursor-pointer rounded-xl border border-line bg-surface p-1"
                         />
                     </div>
                     <div className="col-span-2 flex items-end sm:col-span-1">

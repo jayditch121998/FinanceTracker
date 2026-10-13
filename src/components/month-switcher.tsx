@@ -14,7 +14,7 @@ export default function MonthSwitcher({ month }: { month: string }) {
 
     return (
         <div
-            className={`inline-flex items-center rounded-xl border border-line bg-white p-1 transition ${
+            className={`inline-flex items-center rounded-xl border border-line bg-surface p-1 transition ${
                 pending ? 'opacity-60' : ''
             }`}
         >

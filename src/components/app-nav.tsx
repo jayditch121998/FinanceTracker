@@ -45,7 +45,7 @@ export function BottomNav() {
     const isActive = useIsActive();
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
             <div className="grid grid-cols-5">
                 {navItems.map(({ href, label, icon: NavIcon }) => (
                     <Link

@@ -11,7 +11,7 @@ function SubmitButton() {
     return (
         <button
             disabled={pending}
-            className="rounded-lg p-2 text-muted transition hover:bg-white hover:text-ink"
+            className="rounded-lg p-2 text-muted transition hover:bg-surface hover:text-ink"
             title="Log out"
             aria-label="Log out"
         >
