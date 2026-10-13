@@ -1,5 +1,6 @@
 import { BottomNav, TopNav } from '@/components/app-nav';
 import LogoutButton from '@/components/logout-button';
+import PrivacyToggle from '@/components/privacy-toggle';
 import { NavigationProvider, PendingContent } from '@/components/navigation-progress';
 import Link from 'next/link';
 
@@ -19,7 +20,10 @@ export default function AppLayout({ children }: LayoutProps<'/'>) {
 
                         <TopNav />
 
-                        <LogoutButton />
+                        <div className="flex items-center gap-1">
+                            <PrivacyToggle />
+                            <LogoutButton />
+                        </div>
                     </div>
                 </header>
 

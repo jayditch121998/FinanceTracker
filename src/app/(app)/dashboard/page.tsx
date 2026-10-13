@@ -1,9 +1,9 @@
+import Money from '@/components/money';
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
 import { DashboardSkeleton } from '@/components/skeletons';
 import { getBudgetsForMonth, getTransactionsForMonth } from '@/lib/data';
 import { resolveMonth } from '@/lib/dates';
-import { formatCurrency } from '@/lib/format';
 import { buildDashboard } from '@/lib/summary';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<'/dashboard'>, 'search
                     <div>
                         <p className="eyebrow">Net this month</p>
                         <p className={`num mt-1 text-4xl font-bold ${net < 0 ? 'text-expense' : ''}`}>
-                            {formatCurrency(net)}
+                            <Money value={net} />
                         </p>
                         {keptPercent !== null && (
                             <p className="mt-1 text-sm text-muted">
@@ -58,14 +58,14 @@ async function Dashboard({ searchParams }: Pick<PageProps<'/dashboard'>, 'search
                     </div>
                     <div className="sm:border-l sm:border-line sm:pl-6">
                         <p className="eyebrow">Income</p>
-                        <p className="num mt-1 text-2xl font-semibold text-income">{formatCurrency(totalIncome)}</p>
+                        <p className="num mt-1 text-2xl font-semibold text-income"><Money value={totalIncome} /></p>
                     </div>
                     <div className="sm:border-l sm:border-line sm:pl-6">
                         <p className="eyebrow">Expenses</p>
-                        <p className="num mt-1 text-2xl font-semibold text-expense">{formatCurrency(totalExpense)}</p>
+                        <p className="num mt-1 text-2xl font-semibold text-expense"><Money value={totalExpense} /></p>
                         {totalBudget !== null && (
                             <p className={`mt-1 text-xs ${overBudget ? 'font-medium text-expense' : 'text-muted'}`}>
-                                of {formatCurrency(totalBudget)} budgeted
+                                of <Money value={totalBudget} /> budgeted
                             </p>
                         )}
                     </div>
@@ -116,10 +116,10 @@ async function Dashboard({ searchParams }: Pick<PageProps<'/dashboard'>, 'search
                                         </span>
                                         <span className="num shrink-0">
                                             <span className={`font-semibold ${over ? 'text-expense' : ''}`}>
-                                                {formatCurrency(c.total)}
+                                                <Money value={c.total} />
                                             </span>
                                             {c.budget !== null && (
-                                                <span className="text-xs text-muted"> / {formatCurrency(c.budget)}</span>
+                                                <span className="text-xs text-muted"> / <Money value={c.budget} /></span>
                                             )}
                                         </span>
                                     </div>

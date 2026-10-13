@@ -1,12 +1,13 @@
 'use client';
 
 import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
+import Money from '@/components/money';
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
 import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import { todayInAppTimeZone } from '@/lib/dates';
-import { formatCurrency, formatDayHeading } from '@/lib/format';
+import { formatDayHeading } from '@/lib/format';
 import type { Category, EntryType, Transaction } from '@/lib/types';
 import { useState, useTransition, type FormEvent } from 'react';
 import { createTransaction, deleteTransaction, updateTransaction } from './actions';
@@ -96,7 +97,11 @@ export default function TransactionsView({ month, transactions, categories }: Pr
         <>
             <PageHeader
                 title="Transactions"
-                subtitle={`${formatCurrency(totalIn)} in · ${formatCurrency(totalOut)} out`}
+                subtitle={
+                    <>
+                        <Money value={totalIn} /> in · <Money value={totalOut} /> out
+                    </>
+                }
                 action={<MonthSwitcher month={month} />}
             />
 
@@ -275,7 +280,7 @@ function TransactionRow({ transaction: t, editing, deleting, onEdit, onDelete }:
             </div>
             <span className={`num shrink-0 text-sm font-semibold ${t.type === 'income' ? 'text-income' : 'text-ink'}`}>
                 {t.type === 'income' ? '+' : '−'}
-                {formatCurrency(t.amount)}
+                <Money value={t.amount} />
             </span>
             {deleting ? (
                 // Same width as the two icon buttons, so the row doesn't shift.
