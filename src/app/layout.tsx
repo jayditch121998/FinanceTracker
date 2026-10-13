@@ -1,4 +1,5 @@
 import { ToastProvider } from '@/components/toast';
+import { HIDE_AMOUNTS_KEY } from '@/lib/privacy';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
@@ -19,7 +20,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
-        <html lang="en" className={jakarta.variable}>
+        // The script below may add data-hide-amounts before React hydrates, hence suppressHydrationWarning.
+        <html lang="en" className={jakarta.variable} suppressHydrationWarning>
+            <head>
+                {/* Apply "hide amounts" before first paint so real numbers never flash on screen. */}
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `try{if(localStorage.getItem('${HIDE_AMOUNTS_KEY}')==='1')document.documentElement.setAttribute('data-hide-amounts','')}catch(e){}`,
+                    }}
+                />
+            </head>
             <body>
                 <ToastProvider>{children}</ToastProvider>
             </body>

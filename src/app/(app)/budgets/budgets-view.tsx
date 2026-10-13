@@ -1,10 +1,10 @@
 'use client';
 
+import Money from '@/components/money';
 import MonthSwitcher from '@/components/month-switcher';
 import PageHeader from '@/components/page-header';
 import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
-import { formatCurrency } from '@/lib/format';
 import type { BudgetRow } from '@/lib/summary';
 import { useState, useTransition } from 'react';
 import { copyPreviousBudgets, saveBudget } from './actions';
@@ -50,11 +50,11 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
             <div className="card mb-4 grid grid-cols-3 divide-x divide-line">
                 <div className="p-4 sm:p-5">
                     <p className="eyebrow">Budgeted</p>
-                    <p className="num mt-1 text-lg font-bold sm:text-2xl">{formatCurrency(totalBudget)}</p>
+                    <p className="num mt-1 text-lg font-bold sm:text-2xl"><Money value={totalBudget} /></p>
                 </div>
                 <div className="p-4 sm:p-5">
                     <p className="eyebrow">Spent</p>
-                    <p className="num mt-1 text-lg font-bold sm:text-2xl">{formatCurrency(totalSpent)}</p>
+                    <p className="num mt-1 text-lg font-bold sm:text-2xl"><Money value={totalSpent} /></p>
                 </div>
                 <div className="p-4 sm:p-5">
                     <p className="eyebrow">{totalLeft >= 0 ? 'Left' : 'Over'}</p>
@@ -63,7 +63,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                             totalLeft >= 0 ? 'text-income' : 'text-expense'
                         }`}
                     >
-                        {formatCurrency(Math.abs(totalLeft))}
+                        <Money value={Math.abs(totalLeft)} />
                     </p>
                 </div>
             </div>
@@ -100,11 +100,11 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate text-sm font-medium">{row.name}</p>
                                         <p className="num text-xs text-muted">
-                                            {formatCurrency(row.spent)} spent
+                                            <Money value={row.spent} /> spent
                                             {left !== null && (
                                                 <span className={over ? 'font-medium text-expense' : 'text-income'}>
                                                     {' · '}
-                                                    {formatCurrency(Math.abs(left))} {over ? 'over' : 'left'}
+                                                    <Money value={Math.abs(left)} /> {over ? 'over' : 'left'}
                                                 </span>
                                             )}
                                         </p>
@@ -126,7 +126,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
                                             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
                                             aria-label={`Budget for ${row.name}`}
                                             aria-busy={isSaving}
-                                            className="field num py-1.5 pl-7 text-right"
+                                            className="field money-input num py-1.5 pl-7 text-right"
                                         />
                                     </div>
                                 </div>
@@ -146,7 +146,7 @@ export default function BudgetsView({ month, rows, canCopyPrevious }: Props) {
 
             {unbudgetedSpent > 0 && (
                 <p className="mt-3 px-1 text-xs text-muted">
-                    {formatCurrency(unbudgetedSpent)} spent in categories without a budget.
+                    <Money value={unbudgetedSpent} /> spent in categories without a budget.
                 </p>
             )}
         </>

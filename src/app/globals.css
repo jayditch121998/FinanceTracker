@@ -70,6 +70,26 @@
         @apply tabular-nums tracking-tight;
     }
 
+    /* Hide amounts: each <Money> holds the real value and a mask; show one of them. */
+    .money {
+        white-space: nowrap;
+    }
+
+    .money-mask,
+    [data-hide-amounts] .money-value {
+        display: none;
+    }
+
+    [data-hide-amounts] .money-mask {
+        display: inline;
+    }
+
+    /* Amount inputs show blurred text (so it's clear a value is there) until focused for editing. */
+    [data-hide-amounts] .money-input:not(:focus) {
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 7px var(--color-ink);
+    }
+
     .skeleton {
         @apply animate-pulse rounded-2xl bg-line/60;
     }

@@ -1,11 +1,12 @@
 'use client';
 
 import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
+import Money from '@/components/money';
 import PageHeader from '@/components/page-header';
 import { Spinner } from '@/components/spinner';
 import { useToast } from '@/components/toast';
 import { todayInAppTimeZone } from '@/lib/dates';
-import { formatCurrency, formatDate } from '@/lib/format';
+import { formatDate } from '@/lib/format';
 import type { GoalProgress } from '@/lib/savings';
 import { useState, useTransition, type FormEvent } from 'react';
 import { createGoal, deleteGoal, depositToGoal, updateGoal, withdrawFromGoal, type GoalInput } from './actions';
@@ -91,9 +92,9 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
             {goals.length > 0 && (
                 <div className="card mb-4 p-5 sm:p-6">
                     <p className="eyebrow">Saved across all goals</p>
-                    <p className="num mt-1 text-4xl font-bold">{formatCurrency(totalSaved)}</p>
+                    <p className="num mt-1 text-4xl font-bold"><Money value={totalSaved} /></p>
                     <p className="mt-1 text-sm text-muted">
-                        of {formatCurrency(totalTarget)} in {goals.length} goal{goals.length === 1 ? '' : 's'}
+                        of <Money value={totalTarget} /> in {goals.length} goal{goals.length === 1 ? '' : 's'}
                     </p>
                 </div>
             )}
@@ -133,7 +134,7 @@ export default function SavingsView({ goals }: { goals: GoalProgress[] }) {
                                     placeholder="0.00"
                                     value={String(form.target_amount ?? '')}
                                     onChange={(e) => setForm((prev) => ({ ...prev, target_amount: e.target.value }))}
-                                    className="field num pl-7 font-semibold"
+                                    className="field money-input num pl-7 font-semibold"
                                 />
                             </div>
                         </div>
@@ -267,8 +268,8 @@ function GoalCard({ goal, editing, deleting, onEdit, onDelete }: GoalCardProps) 
             </div>
 
             <p className="num mt-3">
-                <span className="text-2xl font-bold">{formatCurrency(goal.saved)}</span>
-                <span className="text-sm text-muted"> / {formatCurrency(goal.target)}</span>
+                <span className="text-2xl font-bold"><Money value={goal.saved} /></span>
+                <span className="text-sm text-muted"> / <Money value={goal.target} /></span>
             </p>
 
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper">
@@ -323,11 +324,34 @@ function GoalCard({ goal, editing, deleting, onEdit, onDelete }: GoalCardProps) 
 }
 
 function goalStatus(goal: GoalProgress) {
-    if (goal.reached) return `Goal reached${goal.saved > goal.target ? `, ${formatCurrency(goal.saved - goal.target)} over` : ''}.`;
+    if (goal.reached) {
+        return goal.saved > goal.target ? (
+            <>
+                Goal reached, <Money value={goal.saved - goal.target} /> over.
+            </>
+        ) : (
+            'Goal reached.'
+        );
+    }
 
-    const left = `${formatCurrency(goal.remaining)} to go`;
-    if (!goal.targetDate) return `${left}.`;
-    if (goal.overdue) return `${left}. The target date (${formatDate(goal.targetDate)}) has passed.`;
+    const left = (
+        <>
+            <Money value={goal.remaining} /> to go
+        </>
+    );
+    if (!goal.targetDate) return <>{left}.</>;
+    if (goal.overdue) {
+        return (
+            <>
+                {left}. The target date ({formatDate(goal.targetDate)}) has passed.
+            </>
+        );
+    }
 
-    return `${left} by ${formatDate(goal.targetDate)} · save ${formatCurrency(goal.perMonth ?? 0)}/month to stay on track.`;
+    return (
+        <>
+            {left} by {formatDate(goal.targetDate)} · save <Money value={goal.perMonth ?? 0} />
+            /month to stay on track.
+        </>
+    );
 }
